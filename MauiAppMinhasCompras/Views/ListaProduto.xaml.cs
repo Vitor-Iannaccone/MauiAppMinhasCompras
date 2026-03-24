@@ -18,6 +18,7 @@ public partial class ListaProduto : ContentPage
     {
         try
         {
+            lista.Clear();
 
             List<Produtos> tmp = await App.Db.getAll();
 
