@@ -29,7 +29,7 @@ public partial class NovoProduto : ContentPage
         }
         catch (Exception ex)
         {
-            DisplayAlert("Ops", ex.Message, "OK");
+           await DisplayAlert("Ops", ex.Message, "OK");
         }
     }
 }
