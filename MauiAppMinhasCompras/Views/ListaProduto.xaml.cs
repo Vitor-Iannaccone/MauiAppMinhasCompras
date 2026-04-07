@@ -1,3 +1,4 @@
+using Android.Widget;
 using MauiAppMinhasCompras.Models;
 using System.Collections.ObjectModel;
 
@@ -6,7 +7,7 @@ namespace MauiAppMinhasCompras.Views;
 public partial class ListaProduto : ContentPage
 {
     ObservableCollection<Produtos> lista = new ObservableCollection<Produtos>();
-
+    public string CategoriaSelecionada { get; set; }
     public ListaProduto()
     {
         InitializeComponent();
@@ -23,6 +24,9 @@ public partial class ListaProduto : ContentPage
             List<Produtos> tmp = await App.Db.getAll();
 
             tmp.ForEach(i => lista.Add(i));
+
+            AplicarFiltro();
+
         }
         catch (Exception ex)
         {
@@ -54,6 +58,9 @@ public partial class ListaProduto : ContentPage
             List<Produtos> tmp = await App.Db.Search(q);
 
             tmp.ForEach(i => lista.Add(i));
+
+            AplicarFiltro();
+
         }
         catch (Exception ex)
         {
@@ -65,13 +72,40 @@ public partial class ListaProduto : ContentPage
         }
     }
 
-    private void ToolbarItem_Clicked_1(object sender, EventArgs e)
+    private async void ToolbarItem_Clicked_1(object sender, EventArgs e)
     {
-        double soma = lista.Sum(i => i.Total);
+        try
+        {
+            List<Produtos> todos = await App.Db.getAll();
 
-        string msg = $"O valor total dos produtos é {soma:C}";
+            if (lista.Count == 0)
+            {
+                await DisplayAlert("Aviso", "Nenhum produto cadastrado.", "OK");
+                return;
+            }
 
-        DisplayAlert("Total dos Produtos", msg, "OK");
+            var relatorio = lista.GroupBy(p => p.CategoriaTipo).Select(g => new
+            {
+                Categoria = g.Key.ToString(),
+                Total = g.Sum(p => p.Total)
+            }).OrderByDescending(g => g.Total).ToList();
+
+            string msg = "";
+
+            foreach (var item in relatorio)
+            {
+                msg += $"{item.Categoria} {item.Total:c}\n";
+            }
+
+            double totalGeral = lista.Sum(p => p.Total);
+            msg += $"\nTotal Geral {totalGeral:c}";
+
+            await DisplayAlert("Relatório por Categoria", msg, "OK");
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("ERRO", ex.Message, "OK");
+        }
     }
 
     private async void MenuItem_Clicked(object sender, EventArgs e)
@@ -134,4 +168,18 @@ public partial class ListaProduto : ContentPage
             lst_produtos.IsRefreshing = false;
         }
     }
+
+    private void AplicarFiltro()
+    {
+        if (string.IsNullOrEmpty(CategoriaSelecionada))
+        {
+            lst_produtos.ItemsSource = lista;
+        }else if (Enum.TryParse(CategoriaSelecionada, out CategoriaTipo categoriaEnum))
+        {
+            lst_produtos.ItemsSource = lista
+                .Where(p => p.CategoriaTipo == categoriaEnum).ToList();
+        }
+    }
+
+
 }

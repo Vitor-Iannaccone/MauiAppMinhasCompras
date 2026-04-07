@@ -7,7 +7,10 @@ public partial class NovoProduto : ContentPage
 	public NovoProduto()
 	{
         InitializeComponent();
-	}
+
+        picker_categoria.ItemsSource = Enum.GetNames(typeof(CategoriaTipo));
+
+    }
 
    
 
@@ -19,7 +22,10 @@ public partial class NovoProduto : ContentPage
             {
                 Descricao = txt_descricao.Text,
                 Quantidade = Convert.ToDouble(txt_quantidade.Text),
-                Preco = Convert.ToDouble(txt_preco.Text)
+                Preco = Convert.ToDouble(txt_preco.Text),
+
+                CategoriaTipo = (CategoriaTipo)Enum.Parse(typeof(CategoriaTipo),
+                picker_categoria.SelectedItem.ToString())
             };
 
             await App.Db.insert(p);

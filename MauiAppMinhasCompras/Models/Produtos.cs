@@ -2,6 +2,14 @@
 
 namespace MauiAppMinhasCompras.Models
 {
+
+    public enum CategoriaTipo
+    {
+        Alimentos,
+        Higiene,
+        Limpeza,
+        Outros
+    }
     public class Produtos
     {
         string _descricao;
@@ -24,5 +32,25 @@ namespace MauiAppMinhasCompras.Models
         public double Preco { get; set; }
 
         public double Total { get => Quantidade * Preco; }
+
+        public CategoriaTipo CategoriaTipo { get; set; }
+
+        public string CategoriaSigla
+        {
+            get
+            {
+                switch (CategoriaTipo)
+                {
+                    case CategoriaTipo.Alimentos:
+                        return "A";
+                    case CategoriaTipo.Higiene:
+                        return "H";
+                    case CategoriaTipo.Limpeza:
+                        return "L";
+                    default:
+                        return "O";
+                }
+            }
+        }
     }
 }
